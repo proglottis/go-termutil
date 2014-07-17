@@ -4,6 +4,8 @@ package termutil
 
 import (
 	"io"
+	"os"
+	"os/signal"
 	"syscall"
 	"unsafe"
 )
@@ -23,6 +25,10 @@ func GetPass(prompt string, prompt_fd, input_fd uintptr) ([]byte, error) {
 
 		written += n
 	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	defer signal.Stop(c)
 
 	// Write a newline after we're done, since it won't be echoed when the
 	// user presses 'Enter'.
